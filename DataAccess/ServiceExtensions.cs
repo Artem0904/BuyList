@@ -15,7 +15,7 @@ namespace DataAccess
     {
         public static void AddDbContext(this IServiceCollection services, string connectionString)
         {
-            services.AddDbContext<BuyListDbContext>(opts => opts.UseNpgsql(connectionString));
+            services.AddDbContext<BuyListDbContext>(opts => opts.UseNpgsql(connectionString));  
         }
 
         public static void DataBaseMigrate(this WebApplication app)
