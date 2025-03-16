@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataAccess.Data;
+using DataAccess.Repositories;
+using DataAccess.Repostories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +18,10 @@ namespace DataAccess
         public static void AddDbContext(this IServiceCollection services, string connectionString)
         {
             services.AddDbContext<BuyListDbContext>(opts => opts.UseNpgsql(connectionString));  
+        }
+        public static void AddRepositories(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
 
         public static void DataBaseMigrate(this WebApplication app)
