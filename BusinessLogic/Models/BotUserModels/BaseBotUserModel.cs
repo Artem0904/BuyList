@@ -14,6 +14,7 @@ namespace BusinessLogic.Models.UserModels
         public string? UserName { get; set; }
         public long? ChatId { get; set; }
         public string? PhoneNumber { get; set; }
+        public string? ImageUrl { get; set; }
         public IFormFile? ImageFile { get; set; }
     }
 }
