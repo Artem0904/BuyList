@@ -16,8 +16,8 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-//app.DataBaseMigrate();
-//app.AddUploadingsFolder(Directory.GetCurrentDirectory());
+app.DataBaseMigrate();
+app.AddUploadingsFolder(Directory.GetCurrentDirectory());
 
 app.UseSwagger();
 app.UseSwaggerUI();
