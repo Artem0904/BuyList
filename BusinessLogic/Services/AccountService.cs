@@ -12,13 +12,13 @@ namespace BusinessLogic.Services
 {
     public class AccountService : IAccountService
     {
-        public readonly IRepository<User> useRepository;
+        public readonly IRepository<BotUser> useRepository;
 
-        public AccountService(IRepository<User> useRepository)
+        public AccountService(IRepository<BotUser> useRepository)
         {
             this.useRepository = useRepository; 
         }
-        public Task AddAsync(BaseUserModel createModel)
+        public Task AddAsync(BaseBotUserModel createModel)
         {
             throw new NotImplementedException();
         }
@@ -28,7 +28,7 @@ namespace BusinessLogic.Services
             throw new NotImplementedException();
         }
 
-        public Task DeleteAsync(User user)
+        public Task DeleteAsync(BotUser user)
         {
             throw new NotImplementedException();
         }

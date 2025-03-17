@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BusinessLogic.DTOs;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Models.OrderModels;
+using BusinessLogic.Specifications;
 using DataAccess.Repositories;
 
 namespace BusinessLogic.Services
@@ -14,31 +16,41 @@ namespace BusinessLogic.Services
     public class OrderService : IOrderService
     {
         public readonly IRepository<Order> orderRepository;
+        public readonly IMapper mapper;
 
-        public OrderService(IRepository<Order> orderRepository)
+        public OrderService(IRepository<Order> orderRepository, 
+            IMapper mapper)
         {
             this.orderRepository = orderRepository;
+            this.mapper = mapper;
         }
-        public Task<IEnumerable<OrderDto>> GetAllAsync()
+        public async Task<IEnumerable<OrderDto>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return mapper.Map<IEnumerable<OrderDto>>(await orderRepository.GetListBySpec(new OrderSpecs.GetAll()));
         }
 
-        public Task<OrderDto> GetByIdAsync(int id)
+        public async Task<OrderDto> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return mapper.Map<OrderDto>(await orderRepository.GetItemBySpec(new OrderSpecs.GetById(id)));
         }
 
-        public Task<OrderDto> CreateAsync(BaseOrderModel creationModel)
+        public async Task<OrderDto> CreateAsync(BaseOrderModel creationModel, int userId)
         {
-            throw new NotImplementedException();
+            var order = mapper.Map<Order>(creationModel);
+            order.UserId = userId;
+
+            await orderRepository.InsertAsync(order);
+            await orderRepository.SaveAsync();
+            return mapper.Map<OrderDto>(order);
         }
 
-        public Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var order = mapper.Map<OrderDto>(await orderRepository.GetItemBySpec(new OrderSpecs.GetById(id)));
+            if (order != null) {
+                await orderRepository.DeleteAsync(id);
+                await orderRepository.SaveAsync();
+            }
         }
-
-
     }
 }

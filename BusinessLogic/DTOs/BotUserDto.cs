@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogic.DTOs
 {
-    internal class UserDto
+    internal class BotUserDto
     {
         public int Id { get; set; }
         public string? FirstName { get; set; } = string.Empty;

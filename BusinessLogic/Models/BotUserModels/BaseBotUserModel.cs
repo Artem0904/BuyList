@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace BusinessLogic.Models.UserModels
 {
-    public class BaseUserModel
+    public class BaseBotUserModel
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

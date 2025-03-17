@@ -5,8 +5,8 @@ namespace BusinessLogic.Interfaces
 {
     public interface IAccountService
     {
-        Task AddAsync(BaseUserModel createModel);
+        Task AddAsync(BaseBotUserModel createModel);
         Task DeleteAsync(int userId);
-        Task DeleteAsync(User user);
+        Task DeleteAsync(BotUser user);
     }
 }

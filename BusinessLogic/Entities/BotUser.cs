@@ -2,7 +2,7 @@
 
 namespace BusinessLogic.Entities
 {
-    public class User : IdentityUser<int>
+    public class BotUser : IdentityUser<int>
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

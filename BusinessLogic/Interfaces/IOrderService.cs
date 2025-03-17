@@ -12,7 +12,7 @@ namespace BusinessLogic.Interfaces
     {
         Task<IEnumerable<OrderDto>> GetAllAsync();
         Task<OrderDto> GetByIdAsync(int id);
-        Task<OrderDto> CreateAsync(BaseOrderModel creationModel);
+        Task<OrderDto> CreateAsync(BaseOrderModel creationModel, int userId);
         Task DeleteAsync(int id);
     }
 }

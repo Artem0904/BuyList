@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Data
 {
-    public class BuyListDbContext(DbContextOptions options) : IdentityDbContext<User, IdentityRole<int>, int>(options)
+    public class BuyListDbContext(DbContextOptions options) : IdentityDbContext<BotUser, IdentityRole<int>, int>(options)
     {
-        public DbSet<User> Users { get; set; }
+        public DbSet<BotUser> BotUsers { get; set; }
         public DbSet<Order> Orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

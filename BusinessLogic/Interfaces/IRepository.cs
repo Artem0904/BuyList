@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Ardalis.Specification;
 
 namespace DataAccess.Repositories
 {
@@ -19,7 +20,7 @@ namespace DataAccess.Repositories
         void Delete(TEntity entityToDelete);
         void Update(TEntity entityToUpdate);
         Task SaveAsync();
-        //Task<TEntity?> GetItemBySpec(ISpecification<TEntity> specification);
-        //Task<IEnumerable<TEntity>> GetListBySpec(ISpecification<TEntity> specification);
+        Task<TEntity?> GetItemBySpec(ISpecification<TEntity> specification);
+        Task<IEnumerable<TEntity>> GetListBySpec(ISpecification<TEntity> specification);
     }
 }

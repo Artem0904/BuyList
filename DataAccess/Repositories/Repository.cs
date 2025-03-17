@@ -1,4 +1,6 @@
 ﻿
+using Ardalis.Specification;
+using Ardalis.Specification.EntityFrameworkCore;
 using DataAccess.Data;
 using DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -54,19 +56,19 @@ namespace DataAccess.Repostories
             context.Entry(entityToUpdate).State = EntityState.Modified;
         }
         public async Task SaveAsync() => await context.SaveChangesAsync();
-        //public async Task<IEnumerable<TEntity>> GetListBySpec(ISpecification<TEntity> specification)
-        //{
-        //    return await ApplySpecification(specification).ToListAsync();
-        //}
-        //public async Task<TEntity?> GetItemBySpec(ISpecification<TEntity> specification)
-        //{
-        //    return await ApplySpecification(specification).FirstOrDefaultAsync();
-        //}
-        //private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
-        //{
-        //    var evaluator = new SpecificationEvaluator();
-        //    return evaluator.GetQuery(dbSet, specification);
-        //}
+        public async Task<IEnumerable<TEntity>> GetListBySpec(ISpecification<TEntity> specification)
+        {
+            return await ApplySpecification(specification).ToListAsync();
+        }
+        public async Task<TEntity?> GetItemBySpec(ISpecification<TEntity> specification)
+        {
+            return await ApplySpecification(specification).FirstOrDefaultAsync();
+        }
+        private IQueryable<TEntity> ApplySpecification(ISpecification<TEntity> specification)
+        {
+            var evaluator = new SpecificationEvaluator();
+            return evaluator.GetQuery(dbSet, specification);
+        }
         public async Task<int> CountAsync(Expression<Func<TEntity, bool>> exp) => await dbSet.CountAsync(exp);
 
         public async Task<IEnumerable<TEntity>> GetAsync(
