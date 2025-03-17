@@ -5,16 +5,18 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var connStr = builder.Configuration.GetConnectionString("DefaultConnection")!;
+var token = builder.Configuration["TelegramBot:Token"];
 
 builder.Services.AddDbContext(connStr);
 builder.Services.AddCustomServices();
 builder.Services.AddRepositories();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddHostedService<BotBackgroundService>();
 
 var app = builder.Build();
+
+
 
 app.DataBaseMigrate();
 app.AddUploadingsFolder(Directory.GetCurrentDirectory());
