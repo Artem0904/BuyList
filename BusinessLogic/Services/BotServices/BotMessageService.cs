@@ -42,5 +42,21 @@ namespace BusinessLogic.Services.BotServices
                 }
             }
         }
+        public static async Task SaveBotUser(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            if (update.Message != null)
+            {
+                var chatId = update.Message.Chat.Id;
+                var message = update.Message;
+                if (!await botBackgroundService.IsUserExist(chatId))
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+            }
+        }
     }
 }

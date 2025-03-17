@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Telegram.Bot.Types;
 using Telegram.Bot;
 using BusinessLogic.Services.BotServices;
+using Telegram.Bot.Types.Enums;
 
 public class BotBackgroundService : BackgroundService
 {
@@ -26,11 +27,19 @@ public class BotBackgroundService : BackgroundService
     {
         if (update.Message is { Text: { } text, Chat: { Id: var chatId } })
         {
-            string message = update.Message.Text;
-            switch (message)
+            var message = update.Message;
+            switch (message.Type)
             {
-                case "/start":
-                    await this.RequestPhone(botClient, update, cancellationToken);
+                case MessageType.Text:
+                switch (message.Text)
+                { 
+                    case "/start":
+                        await this.RequestPhone(botClient, update, cancellationToken);
+                        break;
+                }
+                    break;
+                case MessageType.Contact:
+                    await this.SaveBotUser(botClient, update, cancellationToken);
                     break;
             }
             await botClient.SendTextMessageAsync(chatId, "Введіть опис покупки:");
