@@ -74,7 +74,7 @@ namespace BusinessLogic.Services.BotServices
                             PhoneNumber = contact.PhoneNumber
                         };
                         await botBackgroundService.accountService.AddAsync(newBotUser);
-                        //await SendMainMenu(botClient, chatId);
+                        await BotMenuService.SendMainMenu(botClient, chatId);
                     }
                     else
                     {
@@ -90,38 +90,11 @@ namespace BusinessLogic.Services.BotServices
                                 chatId,
                                 "Дякуємо.Але ви вже зареєстровані",
                                 cancellationToken: cancellationToken);
-                    //await SendMainMenu(botClient, chatId);
+                    await BotMenuService.SendMainMenu(botClient, chatId);
                 }
             }
             
         }
-        //private static async Task SendMainMenu(ITelegramBotClient botClient, long chatId)
-        //{
-        //    var keyboard = new InlineKeyboardMarkup(new[]
-        //    {
-        //        new[] { InlineKeyboardButton.WithCallbackData("📌 Мої покупки", "purchase_history") },
-        //        new[] { InlineKeyboardButton.WithCallbackData("📜 Додати покупку", "add_purchase") }
-        //    });
-
-        //    await botClient.SendMessage(chatId, "📋 Головне меню:", replyMarkup: keyboard);
-        //}
-        //private static async Task SendMyPurchaseMenu(ITelegramBotClient botClient, long chatId)
-        //{
-        //    var keyboard = new InlineKeyboardMarkup(new[]
-        //    {
-        //        new[] { InlineKeyboardButton.WithCallbackData("📜 Головне меню", "main_menu") }
-        //    });
-
-        //    await botClient.SendMessage(chatId, "📋 ПОКУПКИ", replyMarkup: keyboard);
-        //}
-        //private static async Task SendAddPurchaseMenu(ITelegramBotClient botClient, long chatId)
-        //{
-        //    var keyboard = new InlineKeyboardMarkup(new[]
-        //    {
-        //        new[] { InlineKeyboardButton.WithCallbackData("📜 Головне меню", "main_menu") }
-        //    });
-
-        //    await botClient.SendMessage(chatId, "📋 ДОДАТИ ПОКУПКУ", replyMarkup: keyboard);
-        //}
+      
     }
 }

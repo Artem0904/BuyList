@@ -35,11 +35,11 @@ public class BotBackgroundService : BackgroundService
 
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        //if (update.CallbackQuery != null)
-        //{
-        //    await HandleCallbackQuery(botClient, update.CallbackQuery);
-        //    return;
-        //}
+        if (update.CallbackQuery != null)
+        {
+            await HandleCallbackQuery(botClient, update.CallbackQuery);
+            return;
+        }
 
         if (update.Message is { Text: { } text, Chat: { Id: var chatId } })
         {
@@ -62,33 +62,33 @@ public class BotBackgroundService : BackgroundService
         }
     }
 
-    //private async Task HandleCallbackQuery(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-    //{
-    //    var chatId = callbackQuery.Message.Chat.Id;
-    //    var data = callbackQuery.Data; // Отримуємо значення callback_data
+    private async Task HandleCallbackQuery(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+    {
+        var chatId = callbackQuery.Message.Chat.Id;
+        var data = callbackQuery.Data; // Отримуємо значення callback_data
 
-    //    switch (data)
-    //    {
-    //        case "add_purchase":
-    //            await botClient.SendMessage(chatId, "📝 Введіть опис покупки:");
-    //            break;
+        switch (data)
+        {
+            case "add_purchase":
+                await botClient.SendMessage(chatId, "📝 Введіть опис покупки:");
+                break;
 
-    //        case "purchase_history":
-    //            await botClient.SendMessage(chatId, "📜 Ось ваша історія покупок...");
-    //            break;
+            case "purchase_history":
+                await botClient.SendMessage(chatId, "📜 Ось ваша історія покупок...");
+                break;
 
-    //        case "main_menu":
-    //            await botClient.SendMessage(chatId, "❌ Ви вийшли з меню.");
-    //            break;
+            case "main_menu":
+                await botClient.SendMessage(chatId, "❌ Ви вийшли з меню.");
+                break;
 
-    //        default:
-    //            await botClient.SendMessage(chatId, "🔍 Невідома команда.");
-    //            break;
-    //    }
+            default:
+                await botClient.SendMessage(chatId, "🔍 Невідома команда.");
+                break;
+        }
 
-    //    // Видаляємо старе меню, щоб уникнути повторних натискань
-    //    await botClient.EditMessageReplyMarkup(chatId, callbackQuery.Message.MessageId, replyMarkup: null);
-    //}
+        // Видаляємо старе меню, щоб уникнути повторних натискань
+        await botClient.EditMessageReplyMarkup(chatId, callbackQuery.Message.MessageId, replyMarkup: null);
+    }
 
 
     private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
