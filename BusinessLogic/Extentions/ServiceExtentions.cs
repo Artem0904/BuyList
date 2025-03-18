@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
+using BusinessLogic.Services.BotServices;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BusinessLogic.Exstensions
@@ -17,6 +18,7 @@ namespace BusinessLogic.Exstensions
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IBotUserService, BotUserService>();
 
         }
         public static void AddValidationServices(this IServiceCollection services)

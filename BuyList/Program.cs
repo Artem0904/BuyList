@@ -8,6 +8,7 @@ var connStr = builder.Configuration.GetConnectionString("DefaultConnection")!;
 var token = builder.Configuration["TelegramBot:Token"];
 
 builder.Services.AddDbContext(connStr);
+builder.Services.AddIdentity();
 builder.Services.AddCustomServices();
 builder.Services.AddRepositories();
 builder.Services.AddSwaggerGen();

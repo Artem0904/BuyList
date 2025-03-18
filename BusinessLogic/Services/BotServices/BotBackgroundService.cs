@@ -7,24 +7,21 @@ using BusinessLogic.Services.BotServices;
 using Telegram.Bot.Types.Enums;
 using BusinessLogic.Interfaces;
 using Telegram.Bot.Types.ReplyMarkups;
+using BusinessLogic.Interfaces.BotInterfaces;
+using System.Data.Entity;
 
 public class BotBackgroundService : BackgroundService
 {
     private readonly TelegramBotClient client;
-    private readonly IBotUserService userService;
-    public readonly IAccountService accountService;
-    private readonly IServiceScopeFactory scopeFactory;
+    public readonly IServiceScopeFactory serviceScopeFactory;
     public string BotToken { get; private set; }
     public BotBackgroundService(IConfiguration config, 
         IServiceScopeFactory scopeFactory,
-        IBotUserService userService,
-        IAccountService accountService)
+        IServiceScopeFactory serviceScopeFactory)
     {
         BotToken = config["TelegramBot:Token"]!;
-        this.scopeFactory = scopeFactory;
         this.client = new TelegramBotClient(BotToken);
-        this.userService = userService;
-        this.accountService = accountService;
+        this.serviceScopeFactory = serviceScopeFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -37,12 +34,20 @@ public class BotBackgroundService : BackgroundService
     {
         if (update.CallbackQuery != null)
         {
+            if (update.CallbackQuery.Message != null)
+            {
+                await botClient.DeleteMessage(
+                    chatId: update.CallbackQuery.Message.Chat.Id,
+                    messageId: update.CallbackQuery.Message.MessageId,
+                    cancellationToken: cancellationToken
+                );
+            }
             await HandleCallbackQuery(botClient, update.CallbackQuery);
             return;
         }
-
-        if (update.Message is { Text: { } text, Chat: { Id: var chatId } })
+        if (update.Message != null)
         {
+            var chatId = update.Message.Chat.Id;
             var message = update.Message;
             switch (message.Type)
             {
@@ -52,13 +57,15 @@ public class BotBackgroundService : BackgroundService
                     case "/start":
                         await this.RequestPhone(botClient, update, cancellationToken);
                         break;
+                    default:
+                        await botClient.SendMessage(chatId, $"Ви надіслали: {message.Text}");
+                        break;
                 }
                     break;
                 case MessageType.Contact:
                     await this.SaveBotUser(botClient, update, cancellationToken);
                     break;
             }
-            await botClient.SendMessage(chatId, "Введіть опис покупки:");
         }
     }
 
@@ -70,15 +77,15 @@ public class BotBackgroundService : BackgroundService
         switch (data)
         {
             case "add_purchase":
-                await botClient.SendMessage(chatId, "📝 Введіть опис покупки:");
+                await BotMenuService.SendAddPurchaseMenu(botClient, chatId);
                 break;
 
             case "purchase_history":
-                await botClient.SendMessage(chatId, "📜 Ось ваша історія покупок...");
+                await BotMenuService.SendMyPurchaseMenu(botClient, chatId);
                 break;
 
             case "main_menu":
-                await botClient.SendMessage(chatId, "❌ Ви вийшли з меню.");
+                await BotMenuService.SendMainMenu(botClient, chatId);
                 break;
 
             default:
@@ -86,8 +93,7 @@ public class BotBackgroundService : BackgroundService
                 break;
         }
 
-        // Видаляємо старе меню, щоб уникнути повторних натискань
-        await botClient.EditMessageReplyMarkup(chatId, callbackQuery.Message.MessageId, replyMarkup: null);
+        //await botClient.EditMessageReplyMarkup(chatId, callbackQuery.Message.MessageId, replyMarkup: null);
     }
 
 
@@ -96,7 +102,14 @@ public class BotBackgroundService : BackgroundService
         Console.WriteLine($"Помилка: {exception.Message}");
         return Task.CompletedTask;
     }
-    public async Task<bool> IsUserExist(long id) => await userService.GetByChatIdAsync(id) != null;
+    public async Task<bool> IsUserExist(long id)
+    {
+        using (var scope = serviceScopeFactory.CreateScope())
+        {
+            var userService = scope.ServiceProvider.GetService<IBotUserService>();
+            return await userService!.GetByChatIdAsync(id) != null;
+        }
+    }
     public InlineKeyboardButton[][] CreateInlineButtons(Dictionary<string, string> data, int colums)
     {
         return data.AsParallel().Select(x => InlineKeyboardButton.WithCallbackData(text: x.Key, callbackData: x.Value))

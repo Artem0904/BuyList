@@ -7,6 +7,7 @@ using AutoMapper;
 using BusinessLogic.DTOs;
 using BusinessLogic.Entities;
 using BusinessLogic.Models.OrderModels;
+using BusinessLogic.Models.UserModels;
 
 namespace BusinessLogic.AppProfiles
 {
@@ -21,6 +22,10 @@ namespace BusinessLogic.AppProfiles
 
             CreateMap<BotUser, BotUserDto>()
                 .ReverseMap();
+
+            CreateMap<BotUser, BaseBotUserModel>()
+               .ReverseMap();
+
         }
     }
 }

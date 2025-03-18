@@ -3,24 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Models.UserModels;
 using DataAccess.Repositories;
+using Microsoft.AspNetCore.Identity;
 
 namespace BusinessLogic.Services
 {
     public class AccountService : IAccountService
     {
         public readonly IRepository<BotUser> useRepository;
-
-        public AccountService(IRepository<BotUser> useRepository)
+        private readonly IMapper mapper;
+        private readonly UserManager<BotUser> userManager;
+        public AccountService(IRepository<BotUser> useRepository, 
+            IMapper mapper, 
+            UserManager<BotUser> userManager)
         {
-            this.useRepository = useRepository; 
+            this.useRepository = useRepository;
+            this.mapper = mapper;
+            this.userManager = userManager;
         }
-        public Task AddAsync(BaseBotUserModel createModel)
+        public async Task AddAsync(BaseBotUserModel createModel)
         {
-            throw new NotImplementedException();
+            var user = mapper.Map<BotUser>(createModel);
+            if (user.Id == 0)
+            {
+                var result = await userManager.CreateAsync(user);
+                if (result.Succeeded)
+                    await userManager.AddToRoleAsync(user, "User" /*Roles.User.ToString()*/);
+            }
+            else
+            {
+                await userManager.UpdateAsync(user);
+            }
         }
 
         public Task DeleteAsync(int userId)

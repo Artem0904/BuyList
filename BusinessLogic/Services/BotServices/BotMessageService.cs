@@ -8,6 +8,9 @@ using Telegram.Bot;
 using System.Threading;
 using Telegram.Bot.Types.ReplyMarkups;
 using BusinessLogic.Models.UserModels;
+using Microsoft.Extensions.DependencyInjection;
+using System.Data.Entity;
+using BusinessLogic.Interfaces;
 
 namespace BusinessLogic.Services.BotServices
 {
@@ -52,7 +55,7 @@ namespace BusinessLogic.Services.BotServices
                 if (!await botBackgroundService.IsUserExist(chatId))
                 {
                     var contact = message.Contact;
-                    if (contact == null)
+                    if (contact != null)
                     {
                         string? userPhotoUrl = null;
                         var userPhotos = await botClient.GetUserProfilePhotos(
@@ -73,7 +76,11 @@ namespace BusinessLogic.Services.BotServices
                             ImageUrl = userPhotoUrl,
                             PhoneNumber = contact.PhoneNumber
                         };
-                        await botBackgroundService.accountService.AddAsync(newBotUser);
+                        using (var scope = botBackgroundService.serviceScopeFactory.CreateScope())
+                        {
+                            var accountService = scope.ServiceProvider.GetService<IAccountService>();
+                            await accountService!.AddAsync(newBotUser);
+                        }
                         await BotMenuService.SendMainMenu(botClient, chatId);
                     }
                     else
@@ -95,6 +102,12 @@ namespace BusinessLogic.Services.BotServices
             }
             
         }
-      
+
+        public static async Task AddPurchase(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+
+        }
+
+
     }
 }
