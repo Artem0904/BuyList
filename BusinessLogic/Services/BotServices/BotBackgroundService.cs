@@ -70,10 +70,10 @@ public class BotBackgroundService : BackgroundService
                     await this.SaveBotUser(botClient, update, cancellationToken);
                 break;
             }
-            if (message.ReplyToMessage != null && message.From.IsBot)
-            {
-                await botClient.DeleteMessage(chatId, message.ReplyToMessage.MessageId, cancellationToken);
-            }
+            //if (message.ReplyToMessage != null && message.From.IsBot)
+            //{
+            //    await botClient.DeleteMessage(chatId, message.ReplyToMessage.MessageId, cancellationToken);
+            //}
         }
     }
 
