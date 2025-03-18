@@ -43,6 +43,7 @@ namespace BusinessLogic.Services.BotServices
                     chatId,
                         $"Вітаємо: {message.Chat.FirstName} {message.Chat.LastName} !!!",
                         cancellationToken: cancellationToken);
+                    await BotMenuService.SendMainMenu(botClient, chatId);
                 }
             }
         }

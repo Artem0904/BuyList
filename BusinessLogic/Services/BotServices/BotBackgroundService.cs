@@ -32,13 +32,15 @@ public class BotBackgroundService : BackgroundService
 
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
+        int lastCallBackQueryMessageId = 0;
         if (update.CallbackQuery != null)
         {
             if (update.CallbackQuery.Message != null)
             {
+                lastCallBackQueryMessageId = update.CallbackQuery.Message.MessageId;
                 await botClient.DeleteMessage(
                     chatId: update.CallbackQuery.Message.Chat.Id,
-                    messageId: update.CallbackQuery.Message.MessageId,
+                    messageId: lastCallBackQueryMessageId,
                     cancellationToken: cancellationToken
                 );
             }
@@ -49,22 +51,28 @@ public class BotBackgroundService : BackgroundService
         {
             var chatId = update.Message.Chat.Id;
             var message = update.Message;
+            
             switch (message.Type)
             {
                 case MessageType.Text:
-                switch (message.Text)
-                { 
-                    case "/start":
-                        await this.RequestPhone(botClient, update, cancellationToken);
+                    switch (message.Text)
+                    { 
+                        case "/start":
+                            await this.RequestPhone(botClient, update, cancellationToken);
                         break;
-                    default:
-                        await botClient.SendMessage(chatId, $"Ви надіслали: {message.Text}");
+                        default:
+                            await botClient.SendMessage(chatId, $"Ви надіслали: {message.Text}");
+                            await BotMenuService.SendMainMenu(botClient, chatId);
                         break;
-                }
-                    break;
+                    }
+                break;
                 case MessageType.Contact:
                     await this.SaveBotUser(botClient, update, cancellationToken);
-                    break;
+                break;
+            }
+            if (message.ReplyToMessage != null && message.From.IsBot)
+            {
+                await botClient.DeleteMessage(chatId, message.ReplyToMessage.MessageId, cancellationToken);
             }
         }
     }
