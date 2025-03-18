@@ -11,6 +11,7 @@ using BusinessLogic.Models.UserModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Data.Entity;
 using BusinessLogic.Interfaces;
+using Telegram.Bot.Types.Enums;
 
 namespace BusinessLogic.Services.BotServices
 {
@@ -21,28 +22,35 @@ namespace BusinessLogic.Services.BotServices
             if (update.Message != null)
             {
                 var chatId = update.Message.Chat.Id;
-                var message = update.Message;
-                if (!await botBackgroundService.IsUserExist(chatId))
+                if (update.Message.Chat.Type == ChatType.Private)
                 {
-                    var shareContactButton = new KeyboardButton("Поділитися номером телефону") { RequestContact = true };
-
-                    var replyKeyboardMarkup = new ReplyKeyboardMarkup(new[] { new[] { shareContactButton } })
+                    var message = update.Message;
+                    if (!await botBackgroundService.IsUserExist(chatId))
                     {
-                        ResizeKeyboard = true,
-                        OneTimeKeyboard = true
-                    };
-                    await botClient.SendMessage(
+                        var shareContactButton = new KeyboardButton("Поділитися номером телефону") { RequestContact = true };
+
+                        var replyKeyboardMarkup = new ReplyKeyboardMarkup(new[] { new[] { shareContactButton } })
+                        {
+                            ResizeKeyboard = true,
+                            OneTimeKeyboard = true
+                        };
+                        await botClient.SendMessage(
+                            chatId,
+                            "Натисніть кнопку, щоб поділитися своїм номером телефону",
+                            replyMarkup: replyKeyboardMarkup,
+                            cancellationToken: cancellationToken);
+                    }
+                    else
+                    {
+                        await botClient.SendMessage(
                         chatId,
-                        "Натисніть кнопку, щоб поділитися своїм номером телефону",
-                        replyMarkup: replyKeyboardMarkup,
-                        cancellationToken: cancellationToken);
+                            $"Вітаємо: {message.Chat.FirstName} {message.Chat.LastName} !!!",
+                            cancellationToken: cancellationToken);
+                        await BotMenuService.SendMainMenu(botClient, chatId);
+                    }
                 }
                 else
                 {
-                    await botClient.SendMessage(
-                    chatId,
-                        $"Вітаємо: {message.Chat.FirstName} {message.Chat.LastName} !!!",
-                        cancellationToken: cancellationToken);
                     await BotMenuService.SendMainMenu(botClient, chatId);
                 }
             }
