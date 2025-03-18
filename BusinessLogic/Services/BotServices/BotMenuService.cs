@@ -36,7 +36,7 @@ namespace BusinessLogic.Services.BotServices
                 new[] { InlineKeyboardButton.WithCallbackData("📜 Головне меню", "main_menu") }
             });
 
-            await botClient.SendMessage(chatId, "📋 ДОДАТИ ПОКУПКУ", replyMarkup: keyboard);
+            await botClient.SendMessage(chatId, "📋 Напишіть ціну та опис вашої покупки одним повідомленням\n[100.00 - Смачні спагетті]", replyMarkup: keyboard);
         }
     }
 }

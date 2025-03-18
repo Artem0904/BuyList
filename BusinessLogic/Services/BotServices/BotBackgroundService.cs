@@ -9,12 +9,21 @@ using BusinessLogic.Interfaces;
 using Telegram.Bot.Types.ReplyMarkups;
 using BusinessLogic.Interfaces.BotInterfaces;
 using System.Data.Entity;
+using System.Collections.Concurrent;
 
 public class BotBackgroundService : BackgroundService
 {
     private readonly TelegramBotClient client;
     public readonly IServiceScopeFactory serviceScopeFactory;
     public string BotToken { get; private set; }
+    private bool addPurchaseButtonClicked = false;
+    private readonly ConcurrentDictionary<long, BotState> userStates = new();
+    private enum BotState
+    {
+        None,
+        WaitingForPrice,
+        WaitingForDescription
+    }
     public BotBackgroundService(IConfiguration config, 
         IServiceScopeFactory scopeFactory,
         IServiceScopeFactory serviceScopeFactory)
@@ -33,16 +42,13 @@ public class BotBackgroundService : BackgroundService
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         int lastCallBackQueryMessageId = 0;
+
         if (update.CallbackQuery != null)
         {
             if (update.CallbackQuery.Message != null)
             {
                 lastCallBackQueryMessageId = update.CallbackQuery.Message.MessageId;
-                await botClient.DeleteMessage(
-                    chatId: update.CallbackQuery.Message.Chat.Id,
-                    messageId: lastCallBackQueryMessageId,
-                    cancellationToken: cancellationToken
-                );
+                await DeleteMessage(botClient, update.CallbackQuery.Message.Chat.Id, lastCallBackQueryMessageId, cancellationToken);
             }
             await HandleCallbackQuery(botClient, update.CallbackQuery);
             return;
@@ -61,6 +67,10 @@ public class BotBackgroundService : BackgroundService
                             await this.RequestPhone(botClient, update, cancellationToken);
                         break;
                         default:
+                            if (addPurchaseButtonClicked)
+                            {
+                                 
+                            }
                             await botClient.SendMessage(chatId, $"Ви надіслали: {message.Text}");
                             await BotMenuService.SendMainMenu(botClient, chatId);
                         break;
@@ -85,7 +95,9 @@ public class BotBackgroundService : BackgroundService
         switch (data)
         {
             case "add_purchase":
+                addPurchaseButtonClicked = true;
                 await BotMenuService.SendAddPurchaseMenu(botClient, chatId);
+
                 break;
 
             case "purchase_history":
@@ -93,6 +105,7 @@ public class BotBackgroundService : BackgroundService
                 break;
 
             case "main_menu":
+                addPurchaseButtonClicked = false;
                 await BotMenuService.SendMainMenu(botClient, chatId);
                 break;
 
@@ -109,6 +122,14 @@ public class BotBackgroundService : BackgroundService
     {
         Console.WriteLine($"Помилка: {exception.Message}");
         return Task.CompletedTask;
+    }
+    private async Task DeleteMessage(ITelegramBotClient botClient, long chatId, int messageId, CancellationToken cancellationToken)
+    {
+        await botClient.DeleteMessage(
+                    chatId: chatId,
+                    messageId: messageId,
+                    cancellationToken: cancellationToken
+                );
     }
     public async Task<bool> IsUserExist(long id)
     {
