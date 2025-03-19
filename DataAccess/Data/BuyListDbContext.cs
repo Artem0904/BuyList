@@ -10,11 +10,12 @@ namespace DataAccess.Data
     {
         public DbSet<BotUser> BotUsers { get; set; }
         public DbSet<Purchase> Purchases { get; set; }
+        public DbSet<Balance> Balances { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
         
     }

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(BuyListDbContext))]
-    [Migration("20250319195809_Initial")]
+    [Migration("20250319203929_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,6 +25,29 @@ namespace DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BusinessLogic.Entities.Balance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Money")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Balances");
+                });
+
             modelBuilder.Entity("BusinessLogic.Entities.BotUser", b =>
                 {
                     b.Property<int>("Id")
@@ -34,6 +57,9 @@ namespace DataAccess.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("BalanceId")
                         .HasColumnType("integer");
 
                     b.Property<long?>("ChatId")
@@ -93,6 +119,9 @@ namespace DataAccess.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BalanceId")
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -265,6 +294,16 @@ namespace DataAccess.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BusinessLogic.Entities.BotUser", b =>
+                {
+                    b.HasOne("BusinessLogic.Entities.Balance", "Balance")
+                        .WithOne("User")
+                        .HasForeignKey("BusinessLogic.Entities.BotUser", "BalanceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Balance");
+                });
+
             modelBuilder.Entity("BusinessLogic.Entities.Purchase", b =>
                 {
                     b.HasOne("BusinessLogic.Entities.BotUser", "User")
@@ -325,6 +364,11 @@ namespace DataAccess.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BusinessLogic.Entities.Balance", b =>
+                {
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BusinessLogic.Entities.BotUser", b =>

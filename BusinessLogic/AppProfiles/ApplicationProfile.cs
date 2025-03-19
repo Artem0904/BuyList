@@ -21,6 +21,7 @@ namespace BusinessLogic.AppProfiles
                 .ReverseMap();
 
             CreateMap<BotUser, BotUserDto>()
+                .ForMember(x => x.Balance, opt => opt.MapFrom(y => y.Balance != null ? y.Balance.Money : 0))
                 .ReverseMap();
 
             CreateMap<BotUser, BaseBotUserModel>()
