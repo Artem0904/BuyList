@@ -7,46 +7,46 @@ using AutoMapper;
 using BusinessLogic.DTOs;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
-using BusinessLogic.Models.OrderModels;
+using BusinessLogic.Models.PurchaseModels;
 using BusinessLogic.Specifications;
 using DataAccess.Repositories;
 
 namespace BusinessLogic.Services
 {
-    public class OrderService : IOrderService
+    public class PurchaseService : IPurchaseService
     {
-        public readonly IRepository<Order> orderRepository;
+        public readonly IRepository<Purchase> orderRepository;
         public readonly IMapper mapper;
 
-        public OrderService(IRepository<Order> orderRepository, 
+        public PurchaseService(IRepository<Purchase> orderRepository, 
             IMapper mapper)
         {
             this.orderRepository = orderRepository;
             this.mapper = mapper;
         }
-        public async Task<IEnumerable<OrderDto>> GetAllAsync()
+        public async Task<IEnumerable<PurchaseDto>> GetAllAsync()
         {
-            return mapper.Map<IEnumerable<OrderDto>>(await orderRepository.GetListBySpec(new OrderSpecs.GetAll()));
+            return mapper.Map<IEnumerable<PurchaseDto>>(await orderRepository.GetListBySpec(new OrderSpecs.GetAll()));
         }
 
-        public async Task<OrderDto> GetByIdAsync(int id)
+        public async Task<PurchaseDto> GetByIdAsync(int id)
         {
-            return mapper.Map<OrderDto>(await orderRepository.GetItemBySpec(new OrderSpecs.GetById(id)));
+            return mapper.Map<PurchaseDto>(await orderRepository.GetItemBySpec(new OrderSpecs.GetById(id)));
         }
 
-        public async Task<OrderDto> CreateAsync(BaseOrderModel creationModel, int userId)
+        public async Task<PurchaseDto> CreateAsync(BasePurchaseModel creationModel, int userId)
         {
-            var order = mapper.Map<Order>(creationModel);
+            var order = mapper.Map<Purchase>(creationModel);
             order.UserId = userId;
 
             await orderRepository.InsertAsync(order);
             await orderRepository.SaveAsync();
-            return mapper.Map<OrderDto>(order);
+            return mapper.Map<PurchaseDto>(order);
         }
 
         public async Task DeleteAsync(int id)
         {
-            var order = mapper.Map<OrderDto>(await orderRepository.GetItemBySpec(new OrderSpecs.GetById(id)));
+            var order = mapper.Map<PurchaseDto>(await orderRepository.GetItemBySpec(new OrderSpecs.GetById(id)));
             if (order != null) {
                 await orderRepository.DeleteAsync(id);
                 await orderRepository.SaveAsync();

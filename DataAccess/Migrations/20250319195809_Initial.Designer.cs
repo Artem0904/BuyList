@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(BuyListDbContext))]
-    [Migration("20250319000132_Initial")]
+    [Migration("20250319195809_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -104,7 +104,7 @@ namespace DataAccess.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("BusinessLogic.Entities.Order", b =>
+            modelBuilder.Entity("BusinessLogic.Entities.Purchase", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -126,7 +126,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Purchases");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -265,10 +265,10 @@ namespace DataAccess.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BusinessLogic.Entities.Order", b =>
+            modelBuilder.Entity("BusinessLogic.Entities.Purchase", b =>
                 {
                     b.HasOne("BusinessLogic.Entities.BotUser", "User")
-                        .WithMany("Orders")
+                        .WithMany("Purchases")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -329,7 +329,7 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("BusinessLogic.Entities.BotUser", b =>
                 {
-                    b.Navigation("Orders");
+                    b.Navigation("Purchases");
                 });
 #pragma warning restore 612, 618
         }

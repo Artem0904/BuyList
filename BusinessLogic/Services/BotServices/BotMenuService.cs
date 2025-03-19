@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot;
 using Microsoft.Extensions.Hosting;
-using BusinessLogic.Services.BotServices.Enums;
+using BusinessLogic.Enums;
 
 namespace BusinessLogic.Services.BotServices
 {

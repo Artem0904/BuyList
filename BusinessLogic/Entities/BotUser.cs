@@ -8,6 +8,6 @@ namespace BusinessLogic.Entities
         public string? LastName { get; set; }
         public long? ChatId { get; set; }
         public string? Image { get; set; }
-        public ICollection<Order> Orders { get; set; } = new HashSet<Order>();
+        public ICollection<Purchase> Purchases { get; set; } = new HashSet<Purchase>();
     }
 }

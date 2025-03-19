@@ -10,13 +10,13 @@ namespace BusinessLogic.Specifications
 {
     public class OrderSpecs
     {
-        public class GetAll : Specification<Order>
+        public class GetAll : Specification<Purchase>
         {
             public GetAll() => Query
                 .Include(o => o.User)
                 .Where(x => true);
         }
-        public class GetById : Specification<Order>
+        public class GetById : Specification<Purchase>
         {
             public GetById(int id) => Query
                 .Include(o => o.User)

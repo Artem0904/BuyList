@@ -9,7 +9,7 @@ namespace DataAccess.Data
     public class BuyListDbContext(DbContextOptions options) : IdentityDbContext<BotUser, IdentityRole<int>, int>(options)
     {
         public DbSet<BotUser> BotUsers { get; set; }
-        public DbSet<Order> Orders { get; set; }
+        public DbSet<Purchase> Purchases { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

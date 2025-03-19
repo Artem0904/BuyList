@@ -9,11 +9,10 @@ using System.Threading;
 using Telegram.Bot.Types.ReplyMarkups;
 using BusinessLogic.Models.UserModels;
 using Microsoft.Extensions.DependencyInjection;
-using System.Data.Entity;
 using BusinessLogic.Interfaces;
 using Telegram.Bot.Types.Enums;
-using BusinessLogic.Models.OrderModels;
-using BusinessLogic.Services.BotServices.Enums;
+using BusinessLogic.Models.PurchaseModels;
+using BusinessLogic.Enums;
 
 namespace BusinessLogic.Services.BotServices
 {
@@ -114,7 +113,7 @@ namespace BusinessLogic.Services.BotServices
             
         }
 
-        public static async Task AddPurchase(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, BaseOrderModel createModel)
+        public static async Task AddPurchase(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, BasePurchaseModel createModel)
         {
             if (update.Message != null)
             {
@@ -122,10 +121,10 @@ namespace BusinessLogic.Services.BotServices
                 var message = update.Message;
                 using (var scope = botBackgroundService.serviceScopeFactory.CreateScope())
                 {
-                    var purchaseSevice = scope.ServiceProvider.GetService<IOrderService>();
+                    var purchaseSevice = scope.ServiceProvider.GetService<IPurchaseService>();
                     var botUserService = scope.ServiceProvider.GetService<IBotUserService>();
 
-                    var botUser = await botUserService.GetByChatIdAsync(chatId); 
+                    var botUser = await botUserService!.GetByChatIdAsync(chatId); 
                     await purchaseSevice!.CreateAsync(createModel, botUser.Id);
                 }
 
@@ -133,38 +132,41 @@ namespace BusinessLogic.Services.BotServices
         }
         public static async Task HandleStates(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            var chatId = update.Message.Chat.Id;
-            var userId = chatId;
-            var message = update.Message;
-            if (botBackgroundService.userStates.TryGetValue(userId, out var state))
+            if (update.Message != null)
             {
-                if (state == BotState.WaitingForPrice)
+                var chatId = update.Message.Chat.Id;
+                var userId = chatId;
+                var message = update.Message;
+                if (botBackgroundService.userStates.TryGetValue(userId, out var state))
                 {
-                    if (decimal.TryParse(message.Text, out decimal price))
+                    if (state == BotState.WaitingForPrice)
                     {
-                        botBackgroundService.newPurchase.Price = price;
-                        botBackgroundService.userStates[userId] = BotState.WaitingForDescription; // Переходимо до наступного кроку
-                        await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", ButtonTag.main_menu, "✅ Ціну прийнято! Тепер введіть опис покупки.");
-                    }
-                    else
-                    {
-                        await botClient.SendMessage(chatId, "❌ Будь ласка, введіть коректну ціну (число).");
-                    }
-                    return;
-                }
-                else if (state == BotState.WaitingForDescription)
-                {
-                    if (!String.IsNullOrEmpty(message.Text))
-                    {
-                        string description = message.Text;
-                        botBackgroundService.newPurchase.Description = description;
-
-                        await AddPurchase(botBackgroundService, botClient, update, cancellationToken, botBackgroundService.newPurchase);
-                        botBackgroundService.newPurchase = new BaseOrderModel();
-                        await botClient.SendMessage(chatId, "✅ Покупку успішно додано!");
-                        botBackgroundService.userStates.TryRemove(userId, out _);
-                        await BotMenuService.SendMainMenu(botClient, chatId);
+                        if (decimal.TryParse(message.Text, out decimal price))
+                        {
+                            botBackgroundService.newPurchase.Price = price;
+                            botBackgroundService.userStates[userId] = BotState.WaitingForDescription; // Переходимо до наступного кроку
+                            await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", ButtonTag.main_menu, "✅ Ціну прийнято! Тепер введіть опис покупки.");
+                        }
+                        else
+                        {
+                            await botClient.SendMessage(chatId, "❌ Будь ласка, введіть коректну ціну (число).");
+                        }
                         return;
+                    }
+                    else if (state == BotState.WaitingForDescription)
+                    {
+                        if (!String.IsNullOrEmpty(message.Text))
+                        {
+                            string description = message.Text;
+                            botBackgroundService.newPurchase.Description = description;
+
+                            await AddPurchase(botBackgroundService, botClient, update, cancellationToken, botBackgroundService.newPurchase);
+                            botBackgroundService.newPurchase = new BasePurchaseModel();
+                            await botClient.SendMessage(chatId, "✅ Покупку успішно додано!");
+                            botBackgroundService.userStates.TryRemove(userId, out _);
+                            await BotMenuService.SendMainMenu(botClient, chatId);
+                            return;
+                        }
                     }
                 }
             }

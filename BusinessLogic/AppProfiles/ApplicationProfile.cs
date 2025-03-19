@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLogic.DTOs;
 using BusinessLogic.Entities;
-using BusinessLogic.Models.OrderModels;
+using BusinessLogic.Models.PurchaseModels;
 using BusinessLogic.Models.UserModels;
 
 namespace BusinessLogic.AppProfiles
@@ -15,9 +15,9 @@ namespace BusinessLogic.AppProfiles
     {
         public ApplicationProfile()
         {
-            CreateMap<Order, OrderDto>()
+            CreateMap<Purchase, PurchaseDto>()
                 .ReverseMap();
-            CreateMap<Order, BaseOrderModel>()
+            CreateMap<Purchase, BasePurchaseModel>()
                 .ReverseMap();
 
             CreateMap<BotUser, BotUserDto>()

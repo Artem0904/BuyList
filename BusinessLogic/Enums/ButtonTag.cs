@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.Services.BotServices.Enums
+namespace BusinessLogic.Enums
 {
     public enum ButtonTag
     {
-        add_purchase, 
+        add_purchase,
         purchase_history,
         main_menu
     }

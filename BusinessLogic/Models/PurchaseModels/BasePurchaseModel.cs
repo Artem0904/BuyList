@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.Models.OrderModels
+namespace BusinessLogic.Models.PurchaseModels
 {
-    public class BaseOrderModel
+    public class BasePurchaseModel
     {
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }

@@ -72,8 +72,8 @@ namespace DataAccess.Repostories
         public async Task<int> CountAsync(Expression<Func<TEntity, bool>> exp) => await dbSet.CountAsync(exp);
 
         public async Task<IEnumerable<TEntity>> GetAsync(
-        Expression<Func<TEntity, bool>> filter = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+        Expression<Func<TEntity, bool>> filter = null!,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null!,
         params string[] includeProperties)
         {
             IQueryable<TEntity> query = dbSet;

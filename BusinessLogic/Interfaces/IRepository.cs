@@ -6,8 +6,8 @@ namespace DataAccess.Repositories
     public interface IRepository<TEntity> where TEntity : class
     {
         Task<IEnumerable<TEntity>> GetAsync(
-               Expression<Func<TEntity, bool>> filter = null,
-               Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+               Expression<Func<TEntity, bool>> filter = null!,
+               Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null!,
                params string[] includeProperties);
         Task<TEntity?> GetByIDAsync(object id);
         Task<bool> AnyAsync();

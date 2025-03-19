@@ -7,7 +7,7 @@ using BusinessLogic.Entities;
 
 namespace BusinessLogic.DTOs
 {
-    public class OrderDto
+    public class PurchaseDto
     {
         public int Id { get; set; }
         public string Description { get; set; } = string.Empty;

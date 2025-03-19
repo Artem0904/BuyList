@@ -1,5 +1,5 @@
 ﻿using BusinessLogic.Interfaces;
-using BusinessLogic.Models.OrderModels;
+using BusinessLogic.Models.PurchaseModels;
 using BusinessLogic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

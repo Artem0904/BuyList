@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.Services.BotServices.Enums
+namespace BusinessLogic.Enums
 {
     public enum BotState
     {

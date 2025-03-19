@@ -1,5 +1,5 @@
-﻿using AspNetBot;
-using BusinessLogic.Entities;
+﻿using BusinessLogic.Entities;
+using BusinessLogic.Enums;
 using BusinessLogic.Interfaces;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;

@@ -16,7 +16,7 @@ namespace BusinessLogic.Exstensions
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<IImageService, ImageService>();
-            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IPurchaseService, PurchaseService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IBotUserService, BotUserService>();
 

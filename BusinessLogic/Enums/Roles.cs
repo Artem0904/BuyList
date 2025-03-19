@@ -1,4 +1,4 @@
-﻿namespace AspNetBot
+﻿namespace BusinessLogic.Enums
 {
     public enum Roles
     {

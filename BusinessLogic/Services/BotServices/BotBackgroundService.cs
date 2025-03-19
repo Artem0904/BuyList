@@ -8,19 +8,18 @@ using Telegram.Bot.Types.Enums;
 using BusinessLogic.Interfaces;
 using Telegram.Bot.Types.ReplyMarkups;
 using BusinessLogic.Interfaces.BotInterfaces;
-using System.Data.Entity;
 using System.Collections.Concurrent;
-using BusinessLogic.Models.OrderModels;
-using BusinessLogic.Services.BotServices.Enums;
+using BusinessLogic.Models.PurchaseModels;
+using BusinessLogic.Enums;
 namespace BusinessLogic.Services.BotServices
-{ 
+{
     public class BotBackgroundService : BackgroundService
     {
         private readonly TelegramBotClient client;
         public readonly IServiceScopeFactory serviceScopeFactory;
         public string BotToken { get; private set; }
         public  ConcurrentDictionary<long, BotState> userStates = new();
-        public BaseOrderModel newPurchase = new BaseOrderModel();
+        public BasePurchaseModel newPurchase = new BasePurchaseModel();
 
         public BotBackgroundService(IConfiguration config, 
             IServiceScopeFactory scopeFactory,
@@ -89,29 +88,32 @@ namespace BusinessLogic.Services.BotServices
 
         private async Task HandleCallbackQuery(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
-            var chatId = callbackQuery.Message.Chat.Id;
-            var userId = chatId;
-            var data = callbackQuery.Data;
-
-            switch (data)
+            if(callbackQuery.Message != null)
             {
-                case nameof(ButtonTag.add_purchase):
-                    userStates[userId] = BotState.WaitingForPrice;
-                    await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", ButtonTag.main_menu, "💰 Введіть ціну покупки:");
-                    break;
+                var chatId = callbackQuery.Message.Chat.Id;
+                var userId = chatId;
+                var data = callbackQuery.Data;
 
-                case nameof(ButtonTag.purchase_history):
-                    await BotMenuService.SendMyPurchaseMenu(botClient, chatId);
-                    break;
+                switch (data)
+                {
+                    case nameof(ButtonTag.add_purchase):
+                        userStates[userId] = BotState.WaitingForPrice;
+                        await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", ButtonTag.main_menu, "💰 Введіть ціну покупки:");
+                        break;
 
-                case nameof(ButtonTag.main_menu):
-                    userStates.TryRemove(userId, out _);
-                    await BotMenuService.SendMainMenu(botClient, chatId);
-                    break;
+                    case nameof(ButtonTag.purchase_history):
+                        await BotMenuService.SendMyPurchaseMenu(botClient, chatId);
+                        break;
 
-                default:
-                    await botClient.SendMessage(chatId, "🔍 Невідома команда.");
-                    break;
+                    case nameof(ButtonTag.main_menu):
+                        userStates.TryRemove(userId, out _);
+                        await BotMenuService.SendMainMenu(botClient, chatId);
+                        break;
+
+                    default:
+                        await botClient.SendMessage(chatId, "🔍 Невідома команда.");
+                        break;
+                }
             }
 
             //await botClient.EditMessageReplyMarkup(chatId, callbackQuery.Message.MessageId, replyMarkup: null);
