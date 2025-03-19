@@ -12,8 +12,8 @@ builder.Services.AddDbContext(connStr);
 builder.Services.AddIdentity();
 builder.Services.AddCustomServices();
 builder.Services.AddRepositories();
-builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<BotBackgroundService>();
 
 var app = builder.Build();
@@ -23,8 +23,11 @@ app.DataBaseMigrate();
 app.AddUploadingsFolder(Directory.GetCurrentDirectory());
 app.SeedData(builder.Configuration).Wait();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();   
+    app.UseSwaggerUI();
+}
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
