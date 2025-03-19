@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLogic.DTOs;
 using BusinessLogic.Entities;
+using BusinessLogic.Models.BalanceModels;
 using BusinessLogic.Models.PurchaseModels;
 using BusinessLogic.Models.UserModels;
 
@@ -25,6 +26,13 @@ namespace BusinessLogic.AppProfiles
                 .ReverseMap();
 
             CreateMap<BotUser, BaseBotUserModel>()
+               .ReverseMap();
+
+
+            CreateMap<Balance, BalanceDto>()
+               .ReverseMap();
+
+            CreateMap<Balance, BaseBalanceModel>()
                .ReverseMap();
 
         }

@@ -16,7 +16,7 @@ namespace DataAccess.Data.Configurations
             builder.HasKey(x => x.Id);
             builder.HasOne(x => x.Balance)
                 .WithOne(x => x.User)
-                .HasForeignKey<BotUser>(x => x.BalanceId)
+                .HasForeignKey<Balance>(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

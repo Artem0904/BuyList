@@ -19,6 +19,7 @@ namespace BusinessLogic.Exstensions
             services.AddScoped<IPurchaseService, PurchaseService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IBotUserService, BotUserService>();
+            services.AddScoped<IBalanceService, BalanceService>();
 
         }
         public static void AddValidationServices(this IServiceCollection services)

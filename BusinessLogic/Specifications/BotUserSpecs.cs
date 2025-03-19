@@ -14,6 +14,7 @@ namespace BusinessLogic.Specifications
         {
             public GetAll() => Query
                 .Include(u => u.Purchases)
+                .Include(u => u.Balance)
                 .Where(u => true);
         }
 
@@ -21,6 +22,7 @@ namespace BusinessLogic.Specifications
         {
             public GetById(int id) => Query
                 .Include(u => u.Purchases)
+                .Include(u => u.Balance)
                 .Where(u => u.Id == id);
         }
 
@@ -28,6 +30,7 @@ namespace BusinessLogic.Specifications
         {
             public GetByChatId(long chatId) => Query
                 .Include(u => u.Purchases)
+                .Include(u => u.Balance)
                 .Where(u => u.ChatId == chatId);
         }
     }

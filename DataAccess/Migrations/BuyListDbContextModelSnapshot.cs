@@ -42,6 +42,9 @@ namespace DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
                     b.ToTable("Balances");
                 });
 
@@ -116,9 +119,6 @@ namespace DataAccess.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BalanceId")
-                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -291,14 +291,15 @@ namespace DataAccess.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BusinessLogic.Entities.BotUser", b =>
+            modelBuilder.Entity("BusinessLogic.Entities.Balance", b =>
                 {
-                    b.HasOne("BusinessLogic.Entities.Balance", "Balance")
-                        .WithOne("User")
-                        .HasForeignKey("BusinessLogic.Entities.BotUser", "BalanceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne("BusinessLogic.Entities.BotUser", "User")
+                        .WithOne("Balance")
+                        .HasForeignKey("BusinessLogic.Entities.Balance", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Balance");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BusinessLogic.Entities.Purchase", b =>
@@ -363,13 +364,10 @@ namespace DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BusinessLogic.Entities.Balance", b =>
-                {
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("BusinessLogic.Entities.BotUser", b =>
                 {
+                    b.Navigation("Balance");
+
                     b.Navigation("Purchases");
                 });
 #pragma warning restore 612, 618
