@@ -17,20 +17,27 @@ namespace BusinessLogic.Services
     {
         public readonly IRepository<BotUser> useRepository;
         private readonly IMapper mapper;
+        private readonly IImageService imageService;
         private readonly UserManager<BotUser> userManager;
         public AccountService(IRepository<BotUser> useRepository, 
-            IMapper mapper, 
+            IMapper mapper,
+            IImageService imageService,
             UserManager<BotUser> userManager)
         {
             this.useRepository = useRepository;
             this.mapper = mapper;
             this.userManager = userManager;
+            this.imageService = imageService;
         }
         public async Task AddAsync(BaseBotUserModel createModel)
         {
             var user = mapper.Map<BotUser>(createModel);
             if (user.Id == 0)
             {
+                if (createModel.ImageUrl != null)
+                {
+                    user.Image = await imageService.SaveImageFromUrlAsync(createModel.ImageUrl);
+                }
                 var result = await userManager.CreateAsync(user);
                 if (result.Succeeded)
                     await userManager.AddToRoleAsync(user, Roles.User.ToString());

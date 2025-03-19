@@ -16,18 +16,25 @@ namespace BusinessLogic.Services.BotServices
     public class BotUserService : IBotUserService
     {
         public readonly IRepository<BotUser> botUserRepository;
+        public readonly IImageService imageService;
         public readonly IMapper mapper;
-        public BotUserService(IRepository<BotUser> botUserRepository, 
+        public BotUserService(IRepository<BotUser> botUserRepository,
+            IImageService imageService,
             IMapper mapper)
         {
             this.botUserRepository = botUserRepository;
             this.mapper = mapper;
+            this.imageService = imageService;
         }
         public async Task DeleteAsync(long chatId)
         {
             var botUser = await botUserRepository.GetItemBySpec(new BotUserSpecs.GetByChatId(chatId));
             if (botUser != null)
             {
+                if (!String.IsNullOrEmpty(botUser.Image))
+                {
+                    imageService.DeleteImageIfExists(botUser.Image);
+                }
                 await botUserRepository.DeleteAsync(botUser.Id);
                 await botUserRepository.SaveAsync();
             }
@@ -38,6 +45,10 @@ namespace BusinessLogic.Services.BotServices
             var botUser = await botUserRepository.GetItemBySpec(new BotUserSpecs.GetById(id));
             if (botUser != null)
             {
+                if (!String.IsNullOrEmpty(botUser.Image))
+                {
+                   imageService.DeleteImageIfExists(botUser.Image);
+                }
                 await botUserRepository.DeleteAsync(botUser.Id);
                 await botUserRepository.SaveAsync();
             }
