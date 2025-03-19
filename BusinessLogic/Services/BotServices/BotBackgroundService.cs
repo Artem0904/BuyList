@@ -95,7 +95,7 @@ namespace BusinessLogic.Services.BotServices
             {
                 case nameof(ButtonTag.add_purchase):
                     userStates[userId] = BotState.WaitingForPrice;
-                    await botClient.SendMessage(chatId, "💰 Введіть ціну покупки:");
+                    await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", ButtonTag.main_menu, "💰 Введіть ціну покупки:");
                     break;
 
                 case nameof(ButtonTag.purchase_history):

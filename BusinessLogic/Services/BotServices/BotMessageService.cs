@@ -144,7 +144,7 @@ namespace BusinessLogic.Services.BotServices
                     {
                         botBackgroundService.newPurchase.Price = price;
                         botBackgroundService.userStates[userId] = BotState.WaitingForDescription; // Переходимо до наступного кроку
-                        await botClient.SendMessage(chatId, "✅ Ціну прийнято! Тепер введіть опис покупки.");
+                        await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", ButtonTag.main_menu, "✅ Ціну прийнято! Тепер введіть опис покупки.");
                     }
                     else
                     {

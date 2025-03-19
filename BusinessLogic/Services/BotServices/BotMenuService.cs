@@ -45,7 +45,7 @@ namespace BusinessLogic.Services.BotServices
         {
             var keyboard = new InlineKeyboardMarkup(new[]
             {
-                new[] { InlineKeyboardButton.WithCallbackData(buttonText, nameof(buttonTag)) }
+                new[] { InlineKeyboardButton.WithCallbackData(buttonText, buttonTag.ToString()) }
             });
 
             await botClient.SendMessage(chatId, message, replyMarkup: keyboard);
