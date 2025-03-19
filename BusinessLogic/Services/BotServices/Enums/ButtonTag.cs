@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BusinessLogic.Services.BotServices.Enums
+{
+    public enum ButtonTag
+    {
+        add_purchase, 
+        purchase_history,
+        main_menu
+    }
+
+}

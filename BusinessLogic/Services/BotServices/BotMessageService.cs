@@ -13,6 +13,7 @@ using System.Data.Entity;
 using BusinessLogic.Interfaces;
 using Telegram.Bot.Types.Enums;
 using BusinessLogic.Models.OrderModels;
+using BusinessLogic.Services.BotServices.Enums;
 
 namespace BusinessLogic.Services.BotServices
 {
@@ -128,6 +129,44 @@ namespace BusinessLogic.Services.BotServices
                     await purchaseSevice!.CreateAsync(createModel, botUser.Id);
                 }
 
+            }
+        }
+        public static async Task HandleStates(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        {
+            var chatId = update.Message.Chat.Id;
+            var userId = chatId;
+            var message = update.Message;
+            if (botBackgroundService.userStates.TryGetValue(userId, out var state))
+            {
+                if (state == BotState.WaitingForPrice)
+                {
+                    if (decimal.TryParse(message.Text, out decimal price))
+                    {
+                        botBackgroundService.newPurchase.Price = price;
+                        botBackgroundService.userStates[userId] = BotState.WaitingForDescription; // Переходимо до наступного кроку
+                        await botClient.SendMessage(chatId, "✅ Ціну прийнято! Тепер введіть опис покупки.");
+                    }
+                    else
+                    {
+                        await botClient.SendMessage(chatId, "❌ Будь ласка, введіть коректну ціну (число).");
+                    }
+                    return;
+                }
+                else if (state == BotState.WaitingForDescription)
+                {
+                    if (!String.IsNullOrEmpty(message.Text))
+                    {
+                        string description = message.Text;
+                        botBackgroundService.newPurchase.Description = description;
+
+                        await AddPurchase(botBackgroundService, botClient, update, cancellationToken, botBackgroundService.newPurchase);
+                        botBackgroundService.newPurchase = new BaseOrderModel();
+                        await botClient.SendMessage(chatId, "✅ Покупку успішно додано!");
+                        botBackgroundService.userStates.TryRemove(userId, out _);
+                        await BotMenuService.SendMainMenu(botClient, chatId);
+                        return;
+                    }
+                }
             }
         }
     }

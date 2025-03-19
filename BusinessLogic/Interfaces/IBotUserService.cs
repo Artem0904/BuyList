@@ -14,5 +14,6 @@ namespace BusinessLogic.Interfaces
         Task<BotUserDto> GetByIdAsync(int userId);
         Task<BotUserDto> GetByChatIdAsync(long chatId);
         Task DeleteAsync(long chatId);
+        Task DeleteAsync(int id);
     }
 }

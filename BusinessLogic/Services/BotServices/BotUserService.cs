@@ -33,6 +33,16 @@ namespace BusinessLogic.Services.BotServices
             }
         }
 
+        public async Task DeleteAsync(int id)
+        {
+            var botUser = await botUserRepository.GetItemBySpec(new BotUserSpecs.GetById(id));
+            if (botUser != null)
+            {
+                await botUserRepository.DeleteAsync(botUser.Id);
+                await botUserRepository.SaveAsync();
+            }
+        }
+
         public async Task<IEnumerable<BotUserDto>> GetAllAsync()
         {
             return mapper.Map<IEnumerable<BotUserDto>>(await botUserRepository.GetListBySpec(new BotUserSpecs.GetAll()));
