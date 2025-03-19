@@ -10,6 +10,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using BusinessLogic.Interfaces.BotInterfaces;
 using System.Data.Entity;
 using System.Collections.Concurrent;
+using BusinessLogic.Models.OrderModels;
 
 public class BotBackgroundService : BackgroundService
 {
@@ -18,6 +19,8 @@ public class BotBackgroundService : BackgroundService
     public string BotToken { get; private set; }
     private bool addPurchaseButtonClicked = false;
     private readonly ConcurrentDictionary<long, BotState> userStates = new();
+    private BaseOrderModel newPurchase = new BaseOrderModel();
+
     private enum BotState
     {
         None,
@@ -56,8 +59,42 @@ public class BotBackgroundService : BackgroundService
         if (update.Message != null)
         {
             var chatId = update.Message.Chat.Id;
+            var userId = chatId;
             var message = update.Message;
-            
+            if (userStates.TryGetValue(userId, out var state))
+            {
+                if (state == BotState.WaitingForPrice)
+                {
+                    // Перевіряємо, чи введене число
+                    if (decimal.TryParse(message.Text, out decimal price))
+                    {
+                        newPurchase.Price = price;
+                        userStates[userId] = BotState.WaitingForDescription; // Переходимо до наступного кроку
+                        await botClient.SendMessage(chatId, "✅ Ціну прийнято! Тепер введіть опис покупки.");
+                    }
+                    else
+                    {
+                        await botClient.SendMessage(chatId, "❌ Будь ласка, введіть коректну ціну (число).");
+                    }
+                    return;
+                }
+                else if (state == BotState.WaitingForDescription)
+                {
+                    if(!String.IsNullOrEmpty(message.Text))
+                    {
+                        string description = message.Text;
+                        newPurchase.Description = description;
+
+                        await this.AddPurchase(botClient, update, cancellationToken, newPurchase);
+                        newPurchase = new BaseOrderModel();
+                        await botClient.SendMessage(chatId, "✅ Покупку успішно додано!");
+                        userStates.TryRemove(userId, out _);
+                        await BotMenuService.SendMainMenu(botClient, chatId);
+                        return;
+                    }
+                }
+            }
+
             switch (message.Type)
             {
                 case MessageType.Text:
@@ -78,26 +115,23 @@ public class BotBackgroundService : BackgroundService
                 break;
                 case MessageType.Contact:
                     await this.SaveBotUser(botClient, update, cancellationToken);
-                break;
+                    await BotMenuService.SendMainMenu(botClient, chatId);
+                    break;
             }
-            //if (message.ReplyToMessage != null && message.From.IsBot)
-            //{
-            //    await botClient.DeleteMessage(chatId, message.ReplyToMessage.MessageId, cancellationToken);
-            //}
         }
     }
 
     private async Task HandleCallbackQuery(ITelegramBotClient botClient, CallbackQuery callbackQuery)
     {
         var chatId = callbackQuery.Message.Chat.Id;
-        var data = callbackQuery.Data; // Отримуємо значення callback_data
+        var userId = chatId;
+        var data = callbackQuery.Data;
 
         switch (data)
         {
             case "add_purchase":
-                addPurchaseButtonClicked = true;
-                await BotMenuService.SendAddPurchaseMenu(botClient, chatId);
-
+                userStates[userId] = BotState.WaitingForPrice;
+                await botClient.SendMessage(chatId, "💰 Введіть ціну покупки:");
                 break;
 
             case "purchase_history":
@@ -105,7 +139,7 @@ public class BotBackgroundService : BackgroundService
                 break;
 
             case "main_menu":
-                addPurchaseButtonClicked = false;
+                userStates.TryRemove(userId, out _);
                 await BotMenuService.SendMainMenu(botClient, chatId);
                 break;
 

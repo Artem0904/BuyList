@@ -1,4 +1,5 @@
 using BusinessLogic.Exstensions;
+using BuyList.Extensions;
 using DataAccess;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,9 +19,9 @@ builder.Services.AddHostedService<BotBackgroundService>();
 var app = builder.Build();
 
 
-
 app.DataBaseMigrate();
 app.AddUploadingsFolder(Directory.GetCurrentDirectory());
+app.SeedData(builder.Configuration).Wait();
 
 app.UseSwagger();
 app.UseSwaggerUI();

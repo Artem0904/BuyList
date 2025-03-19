@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Data.Entity;
 using BusinessLogic.Interfaces;
 using Telegram.Bot.Types.Enums;
+using BusinessLogic.Models.OrderModels;
 
 namespace BusinessLogic.Services.BotServices
 {
@@ -47,6 +48,7 @@ namespace BusinessLogic.Services.BotServices
                             $"Вітаємо: {message.Chat.FirstName} {message.Chat.LastName} !!!",
                             cancellationToken: cancellationToken);
                         await BotMenuService.SendMainMenu(botClient, chatId);
+
                     }
                 }
                 else
@@ -90,7 +92,6 @@ namespace BusinessLogic.Services.BotServices
                             var accountService = scope.ServiceProvider.GetService<IAccountService>();
                             await accountService!.AddAsync(newBotUser);
                         }
-                        await BotMenuService.SendMainMenu(botClient, chatId);
                     }
                     else
                     {
@@ -112,13 +113,20 @@ namespace BusinessLogic.Services.BotServices
             
         }
 
-        public static async Task AddPurchase(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task AddPurchase(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, BaseOrderModel createModel)
         {
             if (update.Message != null)
             {
                 var chatId = update.Message.Chat.Id;
                 var message = update.Message;
+                using (var scope = botBackgroundService.serviceScopeFactory.CreateScope())
+                {
+                    var purchaseSevice = scope.ServiceProvider.GetService<IOrderService>();
+                    var botUserService = scope.ServiceProvider.GetService<IBotUserService>();
 
+                    var botUser = await botUserService.GetByChatIdAsync(chatId); 
+                    await purchaseSevice!.CreateAsync(createModel, botUser.Id);
+                }
 
             }
         }

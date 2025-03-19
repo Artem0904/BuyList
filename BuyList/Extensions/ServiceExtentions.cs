@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Rozetka_Api
+namespace BuyList.Extensions
 {
     public static class ServiceExtensions
     {

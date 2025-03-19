@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AspNetBot;
 using AutoMapper;
 using BusinessLogic.Entities;
 using BusinessLogic.Interfaces;
@@ -32,7 +33,7 @@ namespace BusinessLogic.Services
             {
                 var result = await userManager.CreateAsync(user);
                 if (result.Succeeded)
-                    await userManager.AddToRoleAsync(user, "User" /*Roles.User.ToString()*/);
+                    await userManager.AddToRoleAsync(user, Roles.User.ToString());
             }
             else
             {
