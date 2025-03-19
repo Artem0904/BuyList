@@ -79,6 +79,8 @@ namespace BusinessLogic.Services.BotServices
                     break;
                     case MessageType.Contact:
                         await this.SaveBotUser(botClient, update, cancellationToken);
+                        var removeKeyboard = new ReplyKeyboardRemove();
+                        await botClient.SendMessage(chatId, "Реєстрацію завершено!", replyMarkup: removeKeyboard);
                         await BotMenuService.SendMainMenu(botClient, chatId);
                         break;
                 }
