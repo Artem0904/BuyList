@@ -22,5 +22,11 @@ namespace BusinessLogic.Specifications
                 .Include(o => o.User)
                 .Where(o => o.Id == id);
         }
+        public class GetByUserId : Specification<Balance>
+        {
+            public GetByUserId(int userId) => Query
+                .Include(o => o.User)
+                .Where(o => o.UserId == userId);
+        }
     }
 }

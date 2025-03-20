@@ -71,7 +71,11 @@ namespace BusinessLogic.Services
         public async Task<BalanceDto> GetByIdAsync(int id)
         {
             return mapper.Map<BalanceDto>(await balanceRepository.GetItemBySpec(new BalanceSpecs.GetById(id)));
+        }
 
+        public async Task<BalanceDto> GetByUserIdAsync(int useerId)
+        {
+            return mapper.Map<BalanceDto>(await balanceRepository.GetItemBySpec(new BalanceSpecs.GetByUserId(useerId)));
         }
     }
 }

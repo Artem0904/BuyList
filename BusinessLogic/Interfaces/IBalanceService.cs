@@ -12,6 +12,7 @@ namespace BusinessLogic.Interfaces
     {
         Task<IEnumerable<BalanceDto>> GetAllAsync();
         Task<BalanceDto> GetByIdAsync(int id);
+        Task<BalanceDto> GetByUserIdAsync(int useerId);
         Task<BalanceDto> CreateAsync(BaseBalanceModel creationModel);
         Task DeleteAsync(int id);
     }

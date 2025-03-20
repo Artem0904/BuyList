@@ -160,12 +160,20 @@ namespace BusinessLogic.Services.BotServices
                         cancellationToken: cancellationToken
                     );
         }
-        public async Task<bool> IsUserExist(long id)
+        public async Task<bool> IsUserExist(long chatId)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 var userService = scope.ServiceProvider.GetService<IBotUserService>();
-                return await userService!.GetByChatIdAsync(id) != null;
+                return await userService!.GetByChatIdAsync(chatId) != null;
+            }
+        }
+        public async Task<decimal> GetUserBalance(long chatId)
+        {
+            using (var scope = serviceScopeFactory.CreateScope())
+            {
+                var userService = scope.ServiceProvider.GetService<IBotUserService>();
+                return (await userService!.GetByChatIdAsync(chatId)).Balance;
             }
         }
         public InlineKeyboardButton[][] CreateInlineButtons(Dictionary<string, string> data, int colums)

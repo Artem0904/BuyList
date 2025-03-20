@@ -12,7 +12,6 @@ namespace BusinessLogic.Services.BotServices
 {
     public static class BotMenuService
     {
-
         public static async Task SendMainMenu(ITelegramBotClient botClient, long chatId)
         {
             var keyboard = new InlineKeyboardMarkup(new[]

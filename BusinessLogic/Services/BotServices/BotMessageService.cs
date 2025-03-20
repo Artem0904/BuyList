@@ -49,6 +49,7 @@ namespace BusinessLogic.Services.BotServices
                         chatId,
                             $"Вітаємо: {message.Chat.FirstName} {message.Chat.LastName} !!!",
                             cancellationToken: cancellationToken);
+                        await botClient.SendMessage(chatId, $"Ваш баланс: {await botBackgroundService.GetUserBalance(chatId)}");
                         await BotMenuService.SendMainMenu(botClient, chatId);
 
                     }
@@ -109,6 +110,7 @@ namespace BusinessLogic.Services.BotServices
                                 chatId,
                                 "Дякуємо.Але ви вже зареєстровані",
                                 cancellationToken: cancellationToken);
+                    await botClient.SendMessage(chatId, $"Ваш баланс: {await botBackgroundService.GetUserBalance(chatId)}");
                     await BotMenuService.SendMainMenu(botClient, chatId);
                 }
             }
@@ -125,8 +127,11 @@ namespace BusinessLogic.Services.BotServices
                 {
                     var purchaseSevice = scope.ServiceProvider.GetService<IPurchaseService>();
                     var botUserService = scope.ServiceProvider.GetService<IBotUserService>();
+                    var balanceService = scope.ServiceProvider.GetService<IBalanceService>();
 
                     var botUser = await botUserService!.GetByChatIdAsync(chatId);
+                    var bal = await balanceService!.GetByUserIdAsync(botUser.Id);
+                    await balanceService.CreateAsync(new BaseBalanceModel{ Money = botUser.Balance - createModel.Price, Currency = bal.Currency, UserId = botUser.Id});
                     await purchaseSevice!.CreateAsync(createModel, botUser.Id);
                 }
             }
@@ -165,6 +170,7 @@ namespace BusinessLogic.Services.BotServices
                             botBackgroundService.newPurchase = new BasePurchaseModel();
                             await botClient.SendMessage(chatId, "✅ Покупку успішно додано!");
                             botBackgroundService.userStates.TryRemove(userId, out _);
+                            await botClient.SendMessage(chatId, $"Ваш баланс: {await botBackgroundService.GetUserBalance(chatId)}");
                             await BotMenuService.SendMainMenu(botClient, chatId);
                             return;
                         }
@@ -193,8 +199,9 @@ namespace BusinessLogic.Services.BotServices
                                 botBackgroundService.newBalance.UserId = botUser.Id;
                                 await balanceSevice!.CreateAsync(botBackgroundService.newBalance);
                             }
-                            botBackgroundService.userStates.TryRemove(userId, out _);
+                            botBackgroundService.userStates.TryRemove(userId, out _);    
                             await botClient.SendMessage(chatId, "Реєстрацію завершено!");
+                            await botClient.SendMessage(chatId, $"Ваш баланс: {await botBackgroundService.GetUserBalance(chatId)}");
                             await BotMenuService.SendMainMenu(botClient, chatId);
                             botBackgroundService.newBalance = new BaseBalanceModel();
                         }
