@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.Enums
+namespace BusinessLogic.Enums.ButtonTags
 {
-    public enum BotState
+    public enum CurrencyButtonTag
     {
-        None,
-        WaitingForPrice,
-        WaitingForDescription
+        Euro,
+        USD,
+        UAN
     }
 }

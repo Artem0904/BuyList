@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.Enums
+namespace BusinessLogic.Enums.ButtonTags
 {
-    public enum ButtonTag
+    public enum MainMenuButtonTag
     {
         add_purchase,
         purchase_history,

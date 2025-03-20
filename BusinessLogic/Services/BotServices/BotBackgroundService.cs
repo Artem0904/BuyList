@@ -10,7 +10,9 @@ using Telegram.Bot.Types.ReplyMarkups;
 using BusinessLogic.Interfaces.BotInterfaces;
 using System.Collections.Concurrent;
 using BusinessLogic.Models.PurchaseModels;
-using BusinessLogic.Enums;
+using BusinessLogic.Models.BalanceModels;
+using BusinessLogic.Enums.ButtonTags;
+using BusinessLogic.Enums.BotStates;
 namespace BusinessLogic.Services.BotServices
 {
     public class BotBackgroundService : BackgroundService
@@ -20,6 +22,7 @@ namespace BusinessLogic.Services.BotServices
         public string BotToken { get; private set; }
         public  ConcurrentDictionary<long, BotState> userStates = new();
         public BasePurchaseModel newPurchase = new BasePurchaseModel();
+        public BaseBalanceModel newBalance = new BaseBalanceModel();
 
         public BotBackgroundService(IConfiguration config, 
             IServiceScopeFactory scopeFactory,
@@ -57,7 +60,7 @@ namespace BusinessLogic.Services.BotServices
                 var message = update.Message;
                 if (userStates.Keys.Contains(userId))
                 {
-                    await this.HandleStates(botClient, update, cancellationToken);
+                    await this.HandleStates(botClient, update);
                     return;
                 }
 
@@ -79,8 +82,8 @@ namespace BusinessLogic.Services.BotServices
                     case MessageType.Contact:
                         await this.SaveBotUser(botClient, update, cancellationToken);
                         var removeKeyboard = new ReplyKeyboardRemove();
-                        await botClient.SendMessage(chatId, "Реєстрацію завершено!", replyMarkup: removeKeyboard);
-                        await BotMenuService.SendMainMenu(botClient, chatId);
+                        await botClient.SendMessage(chatId, "Вкажіть ваш баланс:", replyMarkup: removeKeyboard);
+                        await BotMenuService.SendChooseCurrencyMenu(botClient, chatId);
                         break;
                 }
             }
@@ -96,22 +99,46 @@ namespace BusinessLogic.Services.BotServices
 
                 switch (data)
                 {
-                    case nameof(ButtonTag.add_purchase):
+                    case nameof(MainMenuButtonTag.add_purchase):
                         userStates[userId] = BotState.WaitingForPrice;
-                        await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", ButtonTag.main_menu, "💰 Введіть ціну покупки:");
+                        await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", MainMenuButtonTag.main_menu, "💰 Введіть ціну покупки:");
                         break;
 
-                    case nameof(ButtonTag.purchase_history):
+                    case nameof(MainMenuButtonTag.purchase_history):
                         await BotMenuService.SendMyPurchaseMenu(botClient, chatId);
                         break;
 
-                    case nameof(ButtonTag.main_menu):
+                    case nameof(MainMenuButtonTag.main_menu):
                         userStates.TryRemove(userId, out _);
                         await BotMenuService.SendMainMenu(botClient, chatId);
                         break;
 
                     default:
-                        await botClient.SendMessage(chatId, "🔍 Невідома команда.");
+                        var update = new Update { Message = new Message { Chat = new Chat { Id = chatId }, Text = string.Empty } };
+                        switch (data)
+                        {
+                            case nameof(CurrencyButtonTag.Euro):
+                                userStates[userId] = BotState.WaitingForCurrency;
+                                update.Message.Text = nameof(CurrencyButtonTag.Euro);
+                                await this.HandleStates(botClient, update);
+                                break;
+
+                            case nameof(CurrencyButtonTag.USD):
+                                userStates[userId] = BotState.WaitingForCurrency;
+                                update.Message.Text = nameof(CurrencyButtonTag.USD);
+                                await this.HandleStates(botClient, update);
+                                break;
+
+                            case nameof(CurrencyButtonTag.UAN):
+                                userStates[userId] = BotState.WaitingForCurrency;
+                                update.Message.Text = nameof(CurrencyButtonTag.UAN);
+                                await this.HandleStates(botClient, update);
+                                break;
+
+                            default:
+                                await botClient.SendMessage(chatId, "🔍 Невідома команда.");
+                                break;
+                        }
                         break;
                 }
             }

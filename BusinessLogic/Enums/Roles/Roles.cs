@@ -1,4 +1,4 @@
-﻿namespace BusinessLogic.Enums
+﻿namespace BusinessLogic.Enums.Roles
 {
     public enum Roles
     {

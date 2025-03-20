@@ -12,13 +12,15 @@ using Microsoft.Extensions.DependencyInjection;
 using BusinessLogic.Interfaces;
 using Telegram.Bot.Types.Enums;
 using BusinessLogic.Models.PurchaseModels;
-using BusinessLogic.Enums;
+using BusinessLogic.Enums.ButtonTags;
+using BusinessLogic.Enums.BotStates;
+using BusinessLogic.Models.BalanceModels;
 
 namespace BusinessLogic.Services.BotServices
 {
     public static class BotMessageService
     {
-        public static async Task RequestPhone(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient,  Update update, CancellationToken cancellationToken)
+        public static async Task RequestPhone(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             if (update.Message != null)
             {
@@ -110,10 +112,10 @@ namespace BusinessLogic.Services.BotServices
                     await BotMenuService.SendMainMenu(botClient, chatId);
                 }
             }
-            
+
         }
 
-        public static async Task AddPurchase(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, BasePurchaseModel createModel)
+        public static async Task AddPurchase(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, BasePurchaseModel createModel)
         {
             if (update.Message != null)
             {
@@ -124,13 +126,12 @@ namespace BusinessLogic.Services.BotServices
                     var purchaseSevice = scope.ServiceProvider.GetService<IPurchaseService>();
                     var botUserService = scope.ServiceProvider.GetService<IBotUserService>();
 
-                    var botUser = await botUserService!.GetByChatIdAsync(chatId); 
+                    var botUser = await botUserService!.GetByChatIdAsync(chatId);
                     await purchaseSevice!.CreateAsync(createModel, botUser.Id);
                 }
-
             }
         }
-        public static async Task HandleStates(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        public static async Task HandleStates(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Update update)
         {
             if (update.Message != null)
             {
@@ -145,7 +146,7 @@ namespace BusinessLogic.Services.BotServices
                         {
                             botBackgroundService.newPurchase.Price = price;
                             botBackgroundService.userStates[userId] = BotState.WaitingForDescription; // Переходимо до наступного кроку
-                            await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", ButtonTag.main_menu, "✅ Ціну прийнято! Тепер введіть опис покупки.");
+                            await BotMenuService.SendOneButtonMenu(botClient, chatId, "Відміна", MainMenuButtonTag.main_menu, "✅ Ціну прийнято! Тепер введіть опис покупки.");
                         }
                         else
                         {
@@ -160,13 +161,93 @@ namespace BusinessLogic.Services.BotServices
                             string description = message.Text;
                             botBackgroundService.newPurchase.Description = description;
 
-                            await AddPurchase(botBackgroundService, botClient, update, cancellationToken, botBackgroundService.newPurchase);
+                            await AddPurchase(botBackgroundService, botClient, update, botBackgroundService.newPurchase);
                             botBackgroundService.newPurchase = new BasePurchaseModel();
                             await botClient.SendMessage(chatId, "✅ Покупку успішно додано!");
                             botBackgroundService.userStates.TryRemove(userId, out _);
                             await BotMenuService.SendMainMenu(botClient, chatId);
                             return;
                         }
+                    }
+                    else if (state == BotState.WaitingForCurrency)
+                    {
+                        if (!String.IsNullOrEmpty(message.Text))
+                        {
+                            botBackgroundService.newBalance.Currency = message.Text;
+                            botBackgroundService.userStates[userId] = BotState.WaitingForBalance; // Переходимо до наступного кроку
+                            await botClient.SendMessage(chatId, "Тепер введіть ваш баланс (число):");
+                            return;
+                        }
+                    }
+                    else if (state == BotState.WaitingForBalance)
+                    {
+                        if (decimal.TryParse(message.Text, out decimal money))
+                        {
+                            botBackgroundService.newBalance.Money = money;
+                            using (var scope = botBackgroundService.serviceScopeFactory.CreateScope())
+                            {
+                                var balanceSevice = scope.ServiceProvider.GetService<IBalanceService>();
+                                var botUserService = scope.ServiceProvider.GetService<IBotUserService>();
+
+                                var botUser = await botUserService!.GetByChatIdAsync(chatId);
+                                botBackgroundService.newBalance.UserId = botUser.Id;
+                                await balanceSevice!.CreateAsync(botBackgroundService.newBalance);
+                            }
+                            botBackgroundService.userStates.TryRemove(userId, out _);
+                            await botClient.SendMessage(chatId, "Реєстрацію завершено!");
+                            await BotMenuService.SendMainMenu(botClient, chatId);
+                            botBackgroundService.newBalance = new BaseBalanceModel();
+                        }
+                        else
+                        {
+                            await botClient.SendMessage(chatId, "❌ Будь ласка, введіть коректний баланс (число).");
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+        public static async Task SetBalance(this BotBackgroundService botBackgroundService, ITelegramBotClient botClient, Message message, CurrencyButtonTag currencyButtonTag)
+        {
+            if (message != null)
+            {
+                var chatId = message.Chat.Id;
+                var userId = chatId;
+                if (botBackgroundService.userStates.TryGetValue(userId, out var state))
+                {
+                    if (state == BotState.WaitingForCurrency)
+                    {
+                        if (!String.IsNullOrEmpty(message.Text))
+                        {
+                            botBackgroundService.newBalance.Currency = currencyButtonTag.ToString();
+                            botBackgroundService.userStates[userId] = BotState.WaitingForBalance; // Переходимо до наступного кроку
+                            await botClient.SendMessage(chatId, "Тепер введіть ваш баланс (число):");
+                            return;
+                        }
+                    }
+                    else if (state == BotState.WaitingForBalance)
+                    {
+                        if (decimal.TryParse(message.Text, out decimal money))
+                        {
+                            botBackgroundService.newBalance.Money = money;
+                            using (var scope = botBackgroundService.serviceScopeFactory.CreateScope())
+                            {
+                                var balanceSevice = scope.ServiceProvider.GetService<IBalanceService>();
+                                var botUserService = scope.ServiceProvider.GetService<IBotUserService>();
+
+                                var botUser = await botUserService!.GetByChatIdAsync(chatId);
+                                botBackgroundService.newBalance.UserId = botUser.Id;
+                                await balanceSevice!.CreateAsync(botBackgroundService.newBalance);
+                            }
+                            botBackgroundService.userStates.TryRemove(userId, out _);
+                            await botClient.SendMessage(chatId, "Баланс успішно прйнято!");
+                            botBackgroundService.newBalance = new BaseBalanceModel();
+                        }
+                        else
+                        {
+                            await botClient.SendMessage(chatId, "❌ Будь ласка, введіть коректний баланс (число).");
+                        }
+                        return;
                     }
                 }
             }

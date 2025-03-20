@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using BusinessLogic.Entities;
-using BusinessLogic.Enums;
+using BusinessLogic.Enums.Roles;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Models.UserModels;
 using DataAccess.Repositories;

@@ -1,5 +1,5 @@
 ﻿using BusinessLogic.Entities;
-using BusinessLogic.Enums;
+using BusinessLogic.Enums.Roles;
 using BusinessLogic.Interfaces;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity;
