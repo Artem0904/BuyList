@@ -1,24 +1,19 @@
 ﻿# Use the official .NET Core SDK as a parent image
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /app
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /source
 
-# Copy the project file and restore any dependencies (use .csproj for the project name)
-COPY *.csproj ./
-RUN dotnet restore
+# copy csproj and restore as distinct layers
+COPY ["BuyList/BuyList.csproj", "BuyList/"]
+RUN dotnet restore "BuyList/BuyList.csproj"
 
-# Copy the rest of the application code
+# copy everything else and build app
 COPY . .
+WORKDIR /source/BuyList
+RUN dotnet publish -o /app
 
-# Publish the application
-RUN dotnet publish -c Release -o out
 
-# Build the runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+# final stage/image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build /app/out ./
-
-# Expose the port your application will run on
-EXPOSE 80
-
-# Start the application
+COPY --from=build /app .
 ENTRYPOINT ["dotnet", "BuyList.dll"]
